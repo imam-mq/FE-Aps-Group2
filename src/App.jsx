@@ -6,10 +6,13 @@ import { AplikasiTable } from "./components/AplikasiTable";
 import { AplikasiForm } from "./components/AplikasiForm";
 import { NotifContainer } from "./components/NotifContainer";
 import { DeleteModal } from "./components/DeleteModal";
+import { useAuth } from "./hooks/useAuth";
+import { LoginForm } from "./components/LoginForm";
 
 const ROWS_PER_PAGE = 10;
 
 function App() {
+  const { isLoggedIn, login, logout } = useAuth();
   const { data, loadData, addData, updateData, deleteData } = useAplikasiData();
   const { notifs, showNotif } = useNotif();
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,7 +21,11 @@ function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadData();
+    }
+  }, [isLoggedIn, loadData]);
   useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
   const filteredData = useMemo(() => {
@@ -68,6 +75,14 @@ function App() {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <LoginForm onLogin={login} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-8">
       <header className="flex items-center justify-between mb-5">
@@ -75,6 +90,9 @@ function App() {
           <h1 className="text-lg font-bold">APS GROUP 2</h1>
           <p className="text-sm text-gray-500">penyimpanan data aplikasi group 2</p>
         </div>
+        <button onClick={logout} className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700">
+          Logout
+        </button>
         <button onClick={handleAddClick} className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700">
           Tambah Data Aplikasi
         </button>

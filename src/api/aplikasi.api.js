@@ -1,5 +1,10 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api/aplikasi";
 
+function authHeaders() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function handleResponse(res) {
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -41,15 +46,15 @@ function toFrontendFormat(row) {
 
 export const aplikasiApi = {
     getAll: async() => {
-        const res = await fetch(BASE_URL);
+        const res = await fetch(BASE_URL, { headers: authHeaders() });
         const rows = await handleResponse(res);
         return rows.map(toFrontendFormat);
     },
 
     create: async (item) => {
-        const res = await fetch(BASE_URL, {
+        const res = await fetch(BASE_URL,   {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...authHeaders() },
             body: JSON.stringify(toApiFormat(item)),
         });
         const row = await handleResponse(res);
@@ -59,7 +64,7 @@ export const aplikasiApi = {
     update: async (id, item) => {
         const res = await fetch(`${BASE_URL}/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...authHeaders() },
             body: JSON.stringify(toApiFormat(item)),
         });
         const row = await handleResponse(res);
