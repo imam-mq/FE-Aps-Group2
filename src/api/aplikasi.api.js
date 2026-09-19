@@ -72,7 +72,10 @@ export const aplikasiApi = {
     },
 
     remove: async (id) => {
-        const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+        const res = await fetch(`${BASE_URL}/${id}`, {
+            method: "DELETE",
+            headers: authHeaders(),
+        });
         return handleResponse(res);
     },
 };
