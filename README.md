@@ -4,7 +4,7 @@ Frontend aplikasi pencatatan APS Group 2. Dibangun dengan React + Vite + Tailwin
 
 ## Demo
 
-![Demo APS Group 2](assets/demo.gif)
+![Demo APS Group 2](src/assets/demo.gif)
 
 ## Fitur
 
