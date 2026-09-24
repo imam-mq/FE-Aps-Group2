@@ -5,17 +5,13 @@ export function LoginForm({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       await onLogin(username, password);
-    } catch (err) {
-      setError(err.message || "Login gagal");
     } finally {
       setLoading(false);
     }
@@ -70,11 +66,6 @@ export function LoginForm({ onLogin }) {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                {error}
-                </p>
-            )}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Username</label>
               <div className="relative rounded-xl shadow-sm">
