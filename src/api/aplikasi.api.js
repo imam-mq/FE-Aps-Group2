@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 
 function toApiFormat(item) {
     return {
-        nama_aplikasi: item.nama_aplikasi,
+        nama_aplikasi: item.namaAplikasi,
         url_link: item.urlLink,
         user_login: item.userLogin,
         password_login: item.passwordLogin,

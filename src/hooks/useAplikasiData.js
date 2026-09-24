@@ -10,7 +10,9 @@ export function useAplikasiData() {
         try{
             const rows = await aplikasiApi.getAll();
             setData(rows);
-        } finally {
+        } catch {
+            console.error("Gagal memuat data:", err.message);
+        }finally {
             setLoading(false);
         }
     }, []);
