@@ -16,6 +16,14 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
     (response) => response,
     (error) => {
+        
+        const isLoginRequest = error.config?.url?.includes("/auth/login");
+
+        if (error.response?.status === 401 && !isLoginRequest) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/";
+        }
         const message = error.response?.data?.error || error.message || "Request Gagal";
         return Promise.reject(new Error(message));
     }

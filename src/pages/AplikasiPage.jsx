@@ -23,8 +23,12 @@ export function AplikasiPage() {
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return data;
-    return data.filter((item) => (item.namaAplikasi || "").toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [data, searchTerm]);
+    const term = searchTerm.toLowerCase();
+    return data.filter((item) => 
+      (item.namaAplikasi || "").toLowerCase().includes(term) ||
+        (item.userLogin || "").toLowerCase().includes(term)
+    );
+  }, [data, searchTerm])
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
   const page = Math.min(currentPage, totalPages);
@@ -55,10 +59,16 @@ export function AplikasiPage() {
 
   const handleDeleteClick = (item) => setDeleteTarget(item);
   const handleDeleteCancel = () => setDeleteTarget(null);
+
   const handleDeleteConfirm = async () => {
     if (deleteTarget) {
-      await deleteData(deleteTarget.id);
-      setDeleteTarget(null);
+      try {
+        await deleteData(deleteTarget.id);
+        showNotif("Data Berhasil Dihapus", "success");
+        setDeleteTarget(null);
+      } catch (err) {
+        showNotif(err.message, "error")
+      }
     }
   };
 

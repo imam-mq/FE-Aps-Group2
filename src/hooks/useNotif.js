@@ -19,7 +19,7 @@ export function useNotif() {
             setTimeout(() => {
                 setNotifs((prev) => prev.filter((n) => n.id !== id));
             }, 300);
-        }, 300);
+        }, 3000);
     }, []);
 
     return { notifs, showNotif };
