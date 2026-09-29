@@ -48,10 +48,6 @@ export function LoginForm({ onLogin }) {
             Setiap akun yang masuk sudah terverifikasi lewat login, jadi data aplikasi tim kamu tetap tersimpan rapi dan tidak sembarang orang bisa mengubahnya.
           </p> */}
         </div>
-
-        <footer className="relative z-10 pt-4 border-t border-white/10 text-xs text-slate-400 text-center">
-          © {new Date().getFullYear()} APS Group 2
-        </footer>
       </section>
 
       {/* Panel kanan - form login */}
