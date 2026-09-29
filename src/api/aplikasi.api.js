@@ -44,7 +44,7 @@ export const aplikasiApi = {
     },
 
     update: async (id, item) => {
-        const res = await axiosClient.put(`/aplikasi/${id}`, toApiFormat(item));
+        const res = await axiosClient.patch(`/aplikasi/${id}`, toApiFormat(item));
         return toFrontendFormat(res.data);
     },
 
