@@ -1,7 +1,7 @@
 import { useState } from "react";
 import loginIllustration from "../assets/login-illustration.gif";
 
-export function LoginForm({ onLogin }) {
+export function LoginForm({ onLogin, onSwitchToRegister, onSwitchToForgotPassword }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -117,6 +117,16 @@ export function LoginForm({ onLogin }) {
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onSwitchToForgotPassword}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+              >
+                Lupa password?
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -125,6 +135,11 @@ export function LoginForm({ onLogin }) {
               {loading ? "Memproses..." : "Masuk"}
             </button>
           </form>
+
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Belum punya akun ?{" "}
+            <button type="button" onClick={onSwitchToRegister} className="font-semibold text-indigo-600 hover:text-indigo-700">Daftar Di Sini</button>
+          </p>
         </div>
       </section>
     </div>

@@ -16,6 +16,18 @@ export function useAuth() {
         setUser(result.user);
     }, []);
 
+    const register = useCallback(async (data) => {
+        return authApi.register(data);
+    }, []);
+
+    const forgotPassword = useCallback(async (email) => {
+        return authApi.forgotPassword(email);
+    }, []);
+
+    const resetPassword = useCallback(async (token, password) => {
+        return authApi.resetPassword(token, password);
+    }, []);
+
     const logout = useCallback(() => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -23,5 +35,5 @@ export function useAuth() {
         setUser(null);
     }, []);
 
-    return { token, user, isLoggedIn: Boolean(token), login, logout };
+    return { token, user, isLoggedIn: Boolean(token), login, register, forgotPassword, resetPassword, logout };
 }
