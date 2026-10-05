@@ -1,8 +1,11 @@
 import { useState } from "react";
 import loginIllustration from "../assets/login-illustration.gif";
+import { registerSchema } from "../validators/auth.schema";
+import { firstZodMessage } from "../utils/zodError";
 
 export function RegisterForm({ onRegister, onSwitchToLogin }) {
     const [name, setName] = useState("");
+    const [error, setError] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -10,12 +13,20 @@ export function RegisterForm({ onRegister, onSwitchToLogin }) {
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
+
+    const parsed = registerSchema.safeParse({ name, username, email, password });
+        if (!parsed.success) {
+            setError(firstZodMessage(parsed.error));
+            return;
+        }
+
+        setError("");
         setLoading(true);
         try {
-            await onRegister({ name, username, email, password });
+            await onRegister(parsed.data);
         } finally {
-            setLoading (false);
+            setLoading(false);
         }
     };
 
@@ -59,8 +70,8 @@ export function RegisterForm({ onRegister, onSwitchToLogin }) {
                 <p className="text-base text-slate-500 mb-10">
                     APS Group — Penyimpanan Data Aplikasi
                 </p>
-
-                <form onSubmit={handleSubmit} className="space-y-5">
+                
+                <form onSubmit={handleSubmit} noValidate className="space-y-5">
                     <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Nama</label>
                     <input
@@ -127,13 +138,14 @@ export function RegisterForm({ onRegister, onSwitchToLogin }) {
                         </button>
                     </div>
                     </div>
-
+                    {error && <p className="text-sm text-red-600">{error}</p>}
                     <button
                     type="submit"
                     disabled={loading}
                     className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 px-5 py-3.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/25 hover:shadow-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                     {loading ? "Memproses..." : "Daftar"}
+                    
                     </button>
                 </form>
 

@@ -1,15 +1,26 @@
 import { useState } from "react";
 import loginIllustration from "../assets/login-illustration.gif";
+import { forgotPasswordSchema } from "../validators/auth.schema";
+import { firstZodMessage } from "../utils/zodError";
 
 export function ForgotPasswordForm({ onForgotPassword, onSwitchToLogin }) {
     const [email, setEmail] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const parsed = forgotPasswordSchema.safeParse({ email });
+        if (!parsed.success) {
+            setError(firstZodMessage(parsed.error));
+            return;
+        }
+
+        setError("");
         setLoading(true);
         try {
-            await onForgotPassword(email);
+            await onForgotPassword(parsed.data.email);
         } finally {
             setLoading(false);
         }
@@ -54,7 +65,7 @@ export function ForgotPasswordForm({ onForgotPassword, onSwitchToLogin }) {
                     Masukkan email yang kamu pakai saat registrasi, nanti kami kirim link buat reset password.
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} noValidate className="space-y-5">
                     <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                     <input
@@ -65,6 +76,7 @@ export function ForgotPasswordForm({ onForgotPassword, onSwitchToLogin }) {
                         className="block w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm text-slate-900 placeholder-slate-400 bg-slate-50 focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition duration-200"
                         required
                     />
+                    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
                     </div>
 
                     <button
