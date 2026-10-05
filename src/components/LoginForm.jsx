@@ -1,17 +1,28 @@
 import { useState } from "react";
 import loginIllustration from "../assets/login-illustration.gif";
+import { loginSchema } from "../validators/auth.schema";
+import { firstZodMessage } from "../utils/zodError";
 
 export function LoginForm({ onLogin, onSwitchToRegister, onSwitchToForgotPassword }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  const parsed = loginSchema.safeParse({ username, password });
+    if (!parsed.success) {
+      setError(firstZodMessage(parsed.error));
+      return;
+    }
+
+    setError("");
     setLoading(true);
     try {
-      await onLogin(username, password);
+      await onLogin(parsed.data.username, parsed.data.password);
     } finally {
       setLoading(false);
     }
@@ -61,7 +72,7 @@ export function LoginForm({ onLogin, onSwitchToRegister, onSwitchToForgotPasswor
             APS Group — Penyimpanan Data Aplikasi
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Username</label>
               <div className="relative rounded-xl shadow-sm">
@@ -126,7 +137,7 @@ export function LoginForm({ onLogin, onSwitchToRegister, onSwitchToForgotPasswor
                 Lupa password?
               </button>
             </div>
-
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
               disabled={loading}

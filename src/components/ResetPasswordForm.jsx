@@ -1,16 +1,27 @@
 import { useState } from "react";
 import loginIllustration from "../assets/login-illustration.gif";
+import { resetPasswordSchema } from "../validators/auth.schema";
+import { firstZodMessage } from "../utils/zodError";
 
 export function ResetPasswordForm({ onResetPassword, onSwitchToLogin }) {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
+
+    const parsed = resetPasswordSchema.safeParse({ password });
+        if (!parsed.success) {
+            setError(firstZodMessage(parsed.error));
+            return;
+        }
+
+        setError("");
         setLoading(true);
         try {
-            await onResetPassword(password);
+            await onResetPassword(parsed.data.password);
         } finally {
             setLoading(false);
         }
@@ -55,7 +66,7 @@ export function ResetPasswordForm({ onResetPassword, onSwitchToLogin }) {
                 Masukkan password baru untuk akun kamu.
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
                 <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Password Baru</label>
                 <div className="relative rounded-xl shadow-sm">
@@ -86,7 +97,7 @@ export function ResetPasswordForm({ onResetPassword, onSwitchToLogin }) {
                     </button>
                 </div>
                 </div>
-
+                {error && <p className="text-sm text-red-600">{error}</p>}
                 <button
                 type="submit"
                 disabled={loading}
@@ -95,7 +106,7 @@ export function ResetPasswordForm({ onResetPassword, onSwitchToLogin }) {
                 {loading ? "Memproses..." : "Simpan Password Baru"}
                 </button>
             </form>
-
+            
             <p className="mt-6 text-center text-sm text-slate-500">
                 Batal reset?{" "}
                 <button
@@ -106,7 +117,7 @@ export function ResetPasswordForm({ onResetPassword, onSwitchToLogin }) {
                 Kembali ke login
                 </button>
             </p>
-            </div>
+        </div>
         </section>
         </div>
     );

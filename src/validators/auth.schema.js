@@ -18,3 +18,15 @@ export const registerSchema = z.object({
     .min(1, "Password wajib diisi")
     .regex(PASSWORD_REGEX, "Password minimal 8 karakter serta kombinasi dengan angka"),
 });
+
+export const loginSchema = z.object({
+  username: z.string().trim().min(1, "Username wajib diisi"),
+  password: z.string().min(1, "Password wajib diisi"),
+});
+
+export const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(1, "Password wajib diisi")
+    .regex(PASSWORD_REGEX, "Password minimal 8 karakter serta kombinasi dengan angka"),
+});
