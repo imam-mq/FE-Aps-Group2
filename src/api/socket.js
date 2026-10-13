@@ -3,4 +3,7 @@ import { io } from "socket.io-client";
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
 const SOCKET_URL = API_URL.replace(/\/api\/?$/, "");
 
-export const socket = io(SOCKET_URL, { autoConnect: false });
+export const socket = io(SOCKET_URL, {
+  autoConnect: false,
+  auth: (cb) => cb({ token: localStorage.getItem("token") }),
+});
