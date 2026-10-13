@@ -6,6 +6,7 @@ import { AplikasiTable } from "../components/AplikasiTable";
 import { AplikasiForm } from "../components/AplikasiForm";
 import { NotifContainer } from "../components/NotifContainer";
 import { DeleteModal } from "../components/DeleteModal";
+import { socket } from "../api/socket";
 
 const ROWS_PER_PAGE = 10;
 
@@ -20,6 +21,19 @@ export function AplikasiPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
   useEffect(() => { setCurrentPage(1); }, [searchTerm]);
+  
+  useEffect(() => {
+    socket.connect();
+    const handleChanged = () => {
+      loadData();
+    };
+
+    socket.on("aplikasi:changed", handleChanged);
+    return () => {
+      socket.off("aplikasi:changed", handleChanged);
+      socket.disconnect();
+    };
+  }, [loadData]);
 
   const filteredData = useMemo(() => {
     if (!searchTerm) return data;
