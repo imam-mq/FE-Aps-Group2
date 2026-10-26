@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 const PASSWORD_MASK = "•••••";
@@ -30,15 +30,9 @@ function Field({ label, children }) {
   );
 }
 
-export function AplikasiForm({ isOpen, editingItem, onClose, onSubmit }) {
-  const [form, setForm] = useState(EMPTY_FORM);
+export function AplikasiForm({ editingItem, onClose, onSubmit }) {
+  const [form, setForm] = useState(() => (editingItem ? { ...EMPTY_FORM, ...editingItem } : EMPTY_FORM));
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) setForm(editingItem ? { ...EMPTY_FORM, ...editingItem } : EMPTY_FORM);
-  }, [isOpen, editingItem]);
-
-  if (!isOpen) return null;
 
   const isEdit = Boolean(editingItem);
   const strength = form.passwordLogin === PASSWORD_MASK ? null : getPasswordStrength(form.passwordLogin);

@@ -23,6 +23,7 @@ export function useAplikasiData() {
             if (requestId !== requestIdRef.current) return;
             setData(result.rows);
             setMeta(result.meta);
+            return result;
         } catch (err) {
             if (requestId === requestIdRef.current) {
                 console.error("Gagal memuat data:", err.message);
@@ -44,7 +45,7 @@ export function useAplikasiData() {
 
     const deleteData = useCallback(async (id) => {
         await aplikasiApi.remove(id);
-        await loadData();
+        return loadData();
     }, [loadData]);
 
     return { data, meta, loading, loadData, addData, updateData, deleteData };

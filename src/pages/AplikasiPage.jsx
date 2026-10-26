@@ -10,6 +10,10 @@ import { socket } from "../api/socket";
 
 const ROWS_PER_PAGE = 10;
 
+function clampPage(result) {
+  return (p) => (result && result.meta.totalPages > 0 ? Math.min(p, result.meta.totalPages) : p);
+}
+
 export function AplikasiPage() {
   const { data, meta, loadData, addData, updateData, deleteData } = useAplikasiData();
   const { notifs, showNotif } = useNotif();
@@ -19,25 +23,16 @@ export function AplikasiPage() {
   const [editingItem, setEditingItem] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // pencarian berubah: kembali ke halaman 1
-  useEffect(() => { setCurrentPage(1); }, [searchTerm]);
-
   // ambil data dari backend setiap halaman atau kata kunci berubah
   useEffect(() => {
-    loadData({ page: currentPage, limit: ROWS_PER_PAGE, search: searchTerm });
+    loadData({ page: currentPage, limit: ROWS_PER_PAGE, search: searchTerm })
+      .then((result) => setCurrentPage(clampPage(result)));
   }, [loadData, currentPage, searchTerm]);
-
-  // halaman saat ini melebihi total (mis. setelah menghapus data terakhir di halaman itu)
-  useEffect(() => {
-    if (meta.totalPages > 0 && currentPage > meta.totalPages) {
-      setCurrentPage(meta.totalPages);
-    }
-  }, [meta.totalPages, currentPage]);
 
   useEffect(() => {
     socket.connect();
     const handleChanged = () => {
-      loadData();
+      loadData().then((result) => setCurrentPage(clampPage(result)));
     };
 
     socket.on("aplikasi:changed", handleChanged);
@@ -51,6 +46,12 @@ export function AplikasiPage() {
   const totalPages = Math.max(1, meta.totalPages);
   const startIndex = (page - 1) * ROWS_PER_PAGE;
   const endIndex = startIndex + data.length;
+
+  // pencarian berubah: kembali ke halaman 1
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
 
   const handleAddClick = () => { setEditingItem(null); setIsFormOpen(true); };
   const handleEditClick = (id) => {
@@ -79,7 +80,8 @@ export function AplikasiPage() {
   const handleDeleteConfirm = async () => {
     if (deleteTarget) {
       try {
-        await deleteData(deleteTarget.id);
+        const result = await deleteData(deleteTarget.id);
+        setCurrentPage(clampPage(result));
         showNotif("Data Berhasil Dihapus", "success");
         setDeleteTarget(null);
       } catch (err) {
@@ -101,7 +103,7 @@ export function AplikasiPage() {
       </header>
 
       <div className="mb-4">
-        <SearchBar value={searchTerm} onChange={setSearchTerm} />
+        <SearchBar value={searchTerm} onChange={handleSearchChange} />
       </div>
 
       <AplikasiTable
@@ -112,7 +114,9 @@ export function AplikasiPage() {
         onEdit={handleEditClick} onDelete={handleDeleteClick}
       />
 
-      <AplikasiForm isOpen={isFormOpen} editingItem={editingItem} onClose={() => setIsFormOpen(false)} onSubmit={handleFormSubmit} />
+      {isFormOpen && (
+        <AplikasiForm editingItem={editingItem} onClose={() => setIsFormOpen(false)} onSubmit={handleFormSubmit} />
+      )}
       <DeleteModal target={deleteTarget} onCancel={handleDeleteCancel} onConfirm={handleDeleteConfirm} />
       <NotifContainer notifs={notifs} />
     </>
