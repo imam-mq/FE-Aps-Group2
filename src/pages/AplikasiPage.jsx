@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAplikasiData } from "../hooks/useAplikasiData";
 import { useNotif } from "../hooks/useNotif";
 import { SearchBar } from "../components/SearchBar";
@@ -11,7 +11,7 @@ import { socket } from "../api/socket";
 const ROWS_PER_PAGE = 10;
 
 export function AplikasiPage() {
-  const { data, loadData, addData, updateData, deleteData } = useAplikasiData();
+  const { data, meta, loadData, addData, updateData, deleteData } = useAplikasiData();
   const { notifs, showNotif } = useNotif();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,9 +19,21 @@ export function AplikasiPage() {
   const [editingItem, setEditingItem] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  // pencarian berubah: kembali ke halaman 1
   useEffect(() => { setCurrentPage(1); }, [searchTerm]);
-  
+
+  // ambil data dari backend setiap halaman atau kata kunci berubah
+  useEffect(() => {
+    loadData({ page: currentPage, limit: ROWS_PER_PAGE, search: searchTerm });
+  }, [loadData, currentPage, searchTerm]);
+
+  // halaman saat ini melebihi total (mis. setelah menghapus data terakhir di halaman itu)
+  useEffect(() => {
+    if (meta.totalPages > 0 && currentPage > meta.totalPages) {
+      setCurrentPage(meta.totalPages);
+    }
+  }, [meta.totalPages, currentPage]);
+
   useEffect(() => {
     socket.connect();
     const handleChanged = () => {
@@ -35,20 +47,10 @@ export function AplikasiPage() {
     };
   }, [loadData]);
 
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    const term = searchTerm.toLowerCase();
-    return data.filter((item) => 
-      (item.namaAplikasi || "").toLowerCase().includes(term) ||
-        (item.userLogin || "").toLowerCase().includes(term)
-    );
-  }, [data, searchTerm])
-
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / ROWS_PER_PAGE));
-  const page = Math.min(currentPage, totalPages);
+  const page = currentPage;
+  const totalPages = Math.max(1, meta.totalPages);
   const startIndex = (page - 1) * ROWS_PER_PAGE;
-  const endIndex = Math.min(startIndex + ROWS_PER_PAGE, filteredData.length);
-  const paginatedData = filteredData.slice(startIndex, endIndex);
+  const endIndex = startIndex + data.length;
 
   const handleAddClick = () => { setEditingItem(null); setIsFormOpen(true); };
   const handleEditClick = (id) => {
@@ -103,8 +105,8 @@ export function AplikasiPage() {
       </div>
 
       <AplikasiTable
-        items={paginatedData} currentPage={page} totalPages={totalPages}
-        totalData={filteredData.length} startIndex={startIndex} endIndex={endIndex}
+        items={data} currentPage={page} totalPages={totalPages}
+        totalData={meta.total} startIndex={startIndex} endIndex={endIndex}
         onPrev={() => setCurrentPage((p) => Math.max(1, p - 1))}
         onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
         onEdit={handleEditClick} onDelete={handleDeleteClick}

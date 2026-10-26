@@ -32,10 +32,20 @@ function toFrontendFormat (row) {
     };
 }
 
+// buang parameter kosong supaya tidak ikut dikirim ke backend
+function cleanParams(params) {
+    return Object.fromEntries(
+        Object.entries(params).filter(([, v]) => v !== "" && v !== null && v !== undefined)
+    );
+}
+
 export const aplikasiApi = {
-    getAll: async () => {
-        const res = await axiosClient.get("/aplikasi");
-        return res.data.map(toFrontendFormat);
+    getAll: async (params = {}) => {
+        const res = await axiosClient.get("/aplikasi", { params: cleanParams(params) });
+        return {
+            rows: res.data.data.map(toFrontendFormat),
+            meta: res.data.meta,
+        };
     },
 
     create: async (item) => {
