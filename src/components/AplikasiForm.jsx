@@ -41,7 +41,7 @@ export function AplikasiForm({ isOpen, editingItem, onClose, onSubmit }) {
   if (!isOpen) return null;
 
   const isEdit = Boolean(editingItem);
-  const strength = getPasswordStrength(form.passwordLogin);
+  const strength = form.passwordLogin === PASSWORD_MASK ? null : getPasswordStrength(form.passwordLogin);
 
   const handleChange = (field) => (e) => {
     const value = field === "isActive" ? e.target.checked : e.target.value;
