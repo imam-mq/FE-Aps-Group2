@@ -10,7 +10,7 @@ import { Button } from "../ui";
 import { socket } from "../api/socket";
 
 const ROWS_PER_PAGE = 10;
-const EMPTY_FILTERS = { search: "", layanan: "", koneksi: "", skala: "" };
+const EMPTY_FILTERS = { search: "", status: "", layanan: "", koneksi: "", skala: "" };
 
 function clampPage(result) {
   return (p) => (result && result.meta.totalPages > 0 ? Math.min(p, result.meta.totalPages) : p);
@@ -59,6 +59,11 @@ export function AplikasiPage() {
     setFilters(EMPTY_FILTERS);
     setCurrentPage(1);
   };
+
+  // muat ulang data dengan filter
+  const handleRefresh = () => {
+    loadData().then((result) => setCurrentPage(clampPage(result)));
+  }
 
   const handleAddClick = () => { setEditingItem(null); setIsFormOpen(true); };
   const handleEditClick = (id) => {
@@ -112,7 +117,12 @@ export function AplikasiPage() {
         </Button>
       </header>
 
-      <FilterBar filters={filters} onChange={handleFilterChange} onReset={handleFilterReset} />
+      <FilterBar
+        filters={filters}
+        onChange={handleFilterChange}
+        onReset={handleFilterReset}
+        onRefresh={handleRefresh}
+      />
 
       <AplikasiTable
         items={data} currentPage={page} totalPages={totalPages}
