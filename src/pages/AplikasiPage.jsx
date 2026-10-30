@@ -127,8 +127,7 @@ export function AplikasiPage() {
       <AplikasiTable
         items={data} currentPage={page} totalPages={totalPages}
         totalData={meta.total} startIndex={startIndex} endIndex={endIndex}
-        onPrev={() => setCurrentPage((p) => Math.max(1, p - 1))}
-        onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+        onPageChange={setCurrentPage}
         onEdit={handleEditClick} onDelete={handleDeleteClick}
       />
 
