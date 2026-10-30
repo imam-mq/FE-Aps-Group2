@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useAplikasiData } from "../hooks/useAplikasiData";
 import { useNotif } from "../hooks/useNotif";
-import { SearchBar } from "../components/SearchBar";
+import { FilterBar } from "../components/FilterBar";
 import { AplikasiTable } from "../components/AplikasiTable";
 import { AplikasiForm } from "../components/AplikasiForm";
 import { NotifContainer } from "../components/NotifContainer";
 import { DeleteModal } from "../components/DeleteModal";
+import { Button } from "../ui";
 import { socket } from "../api/socket";
 
 const ROWS_PER_PAGE = 10;
+const EMPTY_FILTERS = { search: "", layanan: "", koneksi: "", skala: "" };
 
 function clampPage(result) {
   return (p) => (result && result.meta.totalPages > 0 ? Math.min(p, result.meta.totalPages) : p);
@@ -17,17 +19,17 @@ function clampPage(result) {
 export function AplikasiPage() {
   const { data, meta, loadData, addData, updateData, deleteData } = useAplikasiData();
   const { notifs, showNotif } = useNotif();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // ambil data dari backend setiap halaman atau kata kunci berubah
+  // ambil data dari backend setiap halaman atau filter berubah
   useEffect(() => {
-    loadData({ page: currentPage, limit: ROWS_PER_PAGE, search: searchTerm })
+    loadData({ page: currentPage, limit: ROWS_PER_PAGE, ...filters })
       .then((result) => setCurrentPage(clampPage(result)));
-  }, [loadData, currentPage, searchTerm]);
+  }, [loadData, currentPage, filters]);
 
   useEffect(() => {
     socket.connect();
@@ -47,9 +49,14 @@ export function AplikasiPage() {
   const startIndex = (page - 1) * ROWS_PER_PAGE;
   const endIndex = startIndex + data.length;
 
-  // pencarian berubah: kembali ke halaman 1
-  const handleSearchChange = (value) => {
-    setSearchTerm(value);
+  // filter atau pencarian berubah: kembali ke halaman 1
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
+
+  const handleFilterReset = () => {
+    setFilters(EMPTY_FILTERS);
     setCurrentPage(1);
   };
 
@@ -92,19 +99,20 @@ export function AplikasiPage() {
 
   return (
     <>
-      <header className="flex items-center justify-between mb-5">
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-lg font-bold text-slate-900">Data Aplikasi</h1>
-          <p className="text-sm text-gray-500">Kelola data aplikasi Group 2</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Data Aplikasi</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola data integrasi dan konfigurasi server Group 2</p>
         </div>
-        <button onClick={handleAddClick} className="bg-indigo-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700">
+        <Button onClick={handleAddClick}>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 4.5v15m7.5-7.5h-15" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           Tambah Data Aplikasi
-        </button>
+        </Button>
       </header>
 
-      <div className="mb-4">
-        <SearchBar value={searchTerm} onChange={handleSearchChange} />
-      </div>
+      <FilterBar filters={filters} onChange={handleFilterChange} onReset={handleFilterReset} />
 
       <AplikasiTable
         items={data} currentPage={page} totalPages={totalPages}

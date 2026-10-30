@@ -1,85 +1,99 @@
-export function AplikasiTable({ items, currentPage, totalPages, totalData, startIndex, endIndex, onPrev, onNext, onEdit, onDelete  }) {
-    return(
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="bg-white rounded-xl shadow overflow-hidden">
-                            <th className="text-left px-3 py-2.5">Nama Aplikasi</th>
-                            <th className="text-left px-3 py-2.5">URL/Link</th>
-                            <th className="text-left px-3 py-2.5">User Login</th>
-                            <th className="text-left px-3 py-2.5">Password</th>
-                            <th className="text-left px-3 py-2.5">Lokasi Server</th>
-                            <th className="text-left px-3 py-2.5">Lokasi Database</th>
-                            <th className="text-left px-3 py-2.5">Layanan</th>
-                            <th className="text-left px-3 py-2.5">Koneksi</th>
-                            <th className="text-left px-3 py-2.5">Skala</th>
-                            <th className="text-left px-3 py-2.5">Is Active</th>
-                            <th className="text-left px-3 py-2.5">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item) => (
-                            <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50">
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.namaAplikasi}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">
-                                {item.urlLink ? (
-                                    <a href={item.urlLink} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">
-                                    {item.urlLink}
-                                    </a>
-                                ) : "-"}
-                                </td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.userLogin || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.passwordLogin || "•••••"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.lokasiServer || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.lokasiDatabase || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.layanan || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.koneksi || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">{item.skala || "-"}</td>
-                                <td className="px-3 py-2.5 whitespace-nowrap">
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                    item.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                                }`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${item.isActive ? "bg-green-500" : "bg-red-500"}`} />
-                                    {item.isActive ? "Aktif" : "Nonaktif"}
-                                </span>
-                                </td>
-                                <td className="px-3 py-2.5 whitespace-nowrap space-x-1">
-                                <button
-                                    onClick={() => onEdit(item.id)}
-                                    className="px-2 py-1 text-xs font-medium rounded-md bg-amber-100 text-amber-800 hover:bg-amber-200"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => onDelete(item)}
-                                    className="px-2 py-1 text-xs font-medium rounded-md bg-red-100 text-red-800 hover:bg-red-200"
-                                >
-                                    Hapus
-                                </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {items.length === 0 && (
-                    <div className="text-center py-8 text-gray-400 text-sm">Belum ada data.</div>
-                )}
-            </div>
+import { Badge, Button } from "../ui";
 
-            <div className="flex items-center justify-end gap-8 px-6 py-4 border-t border-gray-100 text-sm text-gray-600">
-                <span>
-                    {totalData === 0 ? "0-0 dari 0" : `${startIndex + 1}-${endIndex} dari ${totalData} data`}
-                </span>
-                <div className="flex gap-4">
-                    <button onClick={onPrev} disabled={currentPage === 1} className="disabled:text-gray-300 text-gray-500 hover:text-gray-900">
-                        ❮
-                    </button>
-                    <button onClick={onNext} disabled={currentPage === totalPages} className="disabled:text-gray-300 text-gray-500 hover:text-gray-900">
-                        ❯
-                    </button>
-                </div>
-            </div>
+// Data di database tidak seragam (Web/WEB, VPN/Vpn/vpn), jadi dicocokkan dengan huruf kecil.
+// Teks yang tampil tetap seperti yang tersimpan.
+const LAYANAN_TONE = { web: "blue", api: "violet", mobile: "purple" };
+const KONEKSI_TONE = { public: "green", vpn: "indigo", bpn: "amber" };
+const SKALA_TONE = { kecil: "slate", sedang: "blue", besar: "amber" };
+
+function TagBadge({ value, tones }) {
+  if (!value) return "-";
+  const tone = tones[value.toLowerCase()] || "slate";
+  return <Badge tone={tone}>{value}</Badge>;
+}
+
+const TH = "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap";
+const TD = "px-4 py-3 whitespace-nowrap text-slate-700";
+
+export function AplikasiTable({
+  items, currentPage, totalPages, totalData, startIndex, endIndex,
+  onPrev, onNext, onEdit, onDelete,
+}) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className={TH}>Nama Aplikasi</th>
+              <th className={TH}>URL/Link</th>
+              <th className={TH}>User Login</th>
+              <th className={TH}>Password</th>
+              <th className={TH}>Lokasi Server</th>
+              <th className={TH}>Lokasi Database</th>
+              <th className={TH}>Layanan</th>
+              <th className={TH}>Koneksi</th>
+              <th className={TH}>Skala</th>
+              <th className={TH}>Status</th>
+              <th className={`${TH} sticky right-0 bg-slate-50`}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id} className="group border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                <td className={`${TD} font-medium text-slate-900`}>{item.namaAplikasi}</td>
+                <td className={TD}>
+                  {item.urlLink ? (
+                    <a href={item.urlLink} target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">
+                      {item.urlLink}
+                    </a>
+                  ) : "-"}
+                </td>
+                <td className={TD}>{item.userLogin || "-"}</td>
+                <td className={TD}>{item.passwordLogin || "•••••"}</td>
+                <td className={TD}>{item.lokasiServer || "-"}</td>
+                <td className={TD}>{item.lokasiDatabase || "-"}</td>
+                <td className={TD}><TagBadge value={item.layanan} tones={LAYANAN_TONE} /></td>
+                <td className={TD}><TagBadge value={item.koneksi} tones={KONEKSI_TONE} /></td>
+                <td className={TD}><TagBadge value={item.skala} tones={SKALA_TONE} /></td>
+                <td className={TD}>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      item.isActive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${item.isActive ? "bg-emerald-500" : "bg-rose-500"}`} />
+                    {item.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+                </td>
+                <td className={`${TD} sticky right-0 bg-white group-hover:bg-slate-50`}>
+                  <div className="flex gap-1.5">
+                    <Button variant="warning" size="sm" onClick={() => onEdit(item.id)}>Edit</Button>
+                    <Button variant="danger" size="sm" onClick={() => onDelete(item)}>Hapus</Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {items.length === 0 && (
+          <div className="text-center py-10 text-slate-400 text-sm">Data tidak ditemukan.</div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 text-sm text-slate-600">
+        <span>
+          {totalData === 0 ? "0-0 dari 0 data" : `${startIndex + 1}-${endIndex} dari ${totalData} data`}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={onPrev} disabled={currentPage === 1}>
+            Sebelumnya
+          </Button>
+          <Button variant="secondary" size="sm" onClick={onNext} disabled={currentPage === totalPages}>
+            Berikutnya
+          </Button>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
