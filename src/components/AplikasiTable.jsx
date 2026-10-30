@@ -14,10 +14,20 @@ function TagBadge({ value, tones }) {
 
 const TH = "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap";
 const TD = "px-4 py-3 whitespace-nowrap text-slate-700";
+const ARROW_BUTTON =
+  "p-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors disabled:text-slate-300 disabled:cursor-not-allowed disabled:hover:bg-white";
+
+// nomor halaman: 1 2 3 4 5 … 20, dengan "…" untuk halaman yang dilewati
+function getPageItems(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
+  if (current >= total - 3) return [1, "…", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "…", current - 1, current, current + 1, "…", total];
+}
 
 export function AplikasiTable({
   items, currentPage, totalPages, totalData, startIndex, endIndex,
-  onPrev, onNext, onEdit, onDelete,
+  onPageChange, onEdit, onDelete,
 }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden">
@@ -85,14 +95,52 @@ export function AplikasiTable({
         <span>
           {totalData === 0 ? "0-0 dari 0 data" : `${startIndex + 1}-${endIndex} dari ${totalData} data`}
         </span>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={onPrev} disabled={currentPage === 1}>
-            Sebelumnya
-          </Button>
-          <Button variant="secondary" size="sm" onClick={onNext} disabled={currentPage === totalPages}>
-            Berikutnya
-          </Button>
-        </div>
+
+        <nav aria-label="Halaman" className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label="Halaman sebelumnya"
+            className={ARROW_BUTTON}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15.75 19.5L8.25 12l7.5-7.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {getPageItems(currentPage, totalPages).map((item, index) =>
+            item === "…" ? (
+              <span key={`ellipsis-${index}`} className="px-1 text-slate-400 select-none">…</span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => onPageChange(item)}
+                aria-current={item === currentPage ? "page" : undefined}
+                className={`min-w-8 px-2 py-1 text-xs rounded-md transition-colors ${
+                  item === currentPage
+                    ? "bg-brand-600 text-white font-semibold shadow-sm"
+                    : "border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50"
+                }`}
+              >
+                {item}
+              </button>
+            )
+          )}
+
+          <button
+            type="button"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label="Halaman berikutnya"
+            className={ARROW_BUTTON}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8.25 4.5l7.5 7.5-7.5 7.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </nav>
       </div>
     </div>
   );
