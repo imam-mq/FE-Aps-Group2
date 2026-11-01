@@ -8,6 +8,7 @@ import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { LoginNotif } from "./components/LoginNotif";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { AplikasiPage } from "./pages/AplikasiPage";
+import { DashboardPage } from "./pages/DashboardPage";
 
 function getTokenFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -18,6 +19,7 @@ function App() {
   const { isLoggedIn, user, login, register, forgotPassword, resetPassword, logout } = useAuth();
   const { notifs, showNotif } = useNotif();
   const [showDashboard, setShowDashboard] = useState(isLoggedIn);
+  const [currentPage, setCurrentPage] = useState("dashboard");
   const [resetToken] = useState(() => getTokenFromUrl());
   const [authView, setAuthView] = useState(resetToken ? "reset" : "login");
 
@@ -92,8 +94,13 @@ function App() {
       {!isLoggedIn || !showDashboard ? (
         renderAuthView()
       ) : (
-        <DashboardLayout user={user} onLogout={handleLogout}>
-          <AplikasiPage />
+        <DashboardLayout
+          user={user}
+          onLogout={handleLogout}
+          currentPage={currentPage}
+          onNavigate={setCurrentPage}
+        >
+          {currentPage === "dashboard" ? <DashboardPage /> : <AplikasiPage />}
         </DashboardLayout>
       )}
     </>
