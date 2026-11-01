@@ -1,4 +1,7 @@
 const ICONS = {
+  dashboard: [
+    "M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z",
+  ],
   aplikasi: [
     "M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 4h16M8 4v4",
   ],
@@ -6,6 +9,11 @@ const ICONS = {
     "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75",
   ],
 };
+
+const MENU = [
+  { key: "dashboard", label: "Dashboard", icon: "dashboard" },
+  { key: "aplikasi", label: "Data Aplikasi", icon: "aplikasi" },
+];
 
 function Icon({ name, className = "w-5 h-5" }) {
   return (
@@ -24,7 +32,25 @@ function Icon({ name, className = "w-5 h-5" }) {
   );
 }
 
-export function Sidebar({ user, onLogout }) {
+function MenuItem({ label, icon, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-left transition-colors ${
+        active
+          ? "bg-brand-50 text-brand-700 font-semibold"
+          : "text-slate-600 font-medium hover:text-slate-900 hover:bg-slate-100/70"
+      }`}
+    >
+      <Icon name={icon} className={`w-5 h-5 ${active ? "text-brand-600" : "text-slate-400"}`} />
+      {label}
+    </button>
+  );
+}
+
+export function Sidebar({ user, onLogout, currentPage, onNavigate }) {
   const displayName = user?.name || user?.username || "Pengguna";
   const initial = displayName.charAt(0).toUpperCase();
 
@@ -46,13 +72,15 @@ export function Sidebar({ user, onLogout }) {
         </div>
 
         <nav aria-label="Menu utama" className="p-4 space-y-1.5">
-          <span
-            aria-current="page"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold bg-brand-50 text-brand-700 cursor-default"
-          >
-            <Icon name="aplikasi" className="w-5 h-5 text-brand-600" />
-            Data Aplikasi
-          </span>
+          {MENU.map((item) => (
+            <MenuItem
+              key={item.key}
+              label={item.label}
+              icon={item.icon}
+              active={currentPage === item.key}
+              onClick={() => onNavigate(item.key)}
+            />
+          ))}
         </nav>
       </div>
 
