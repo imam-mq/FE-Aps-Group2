@@ -20,6 +20,7 @@ Frontend aplikasi pencatatan APS Group 2. Dibangun dengan React + Vite + Tailwin
 - Vite
 - Tailwind CSS
 - Fetch API
+- - swagerUI
 
 ## Setup
 
