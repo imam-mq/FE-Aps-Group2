@@ -7,14 +7,18 @@ import { RecentActivity } from "../components/dashboard/RecentActivity";
 import { LoadState } from "../components/dashboard/LoadState";
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
 import { useDashboardActivity } from "../hooks/useDashboardActivity";
+import { socket } from "../api/socket";
 import { LAYANAN_OPTIONS, KONEKSI_OPTIONS, SKALA_OPTIONS } from "../constants/aplikasiOptions";
 import { buildDailySeries, toBreakdownItems } from "../utils/dashboard";
 import { formatRange, getDefaultRange, validateRange } from "../utils/date";
 
-// warna batang per kategori (kunci: huruf kecil)
+// warna per kategori
 const LAYANAN_COLORS = { web: "bg-blue-500", api: "bg-violet-500", mobile: "bg-purple-500" };
 const KONEKSI_COLORS = { vpn: "bg-indigo-600", public: "bg-emerald-500", bpn: "bg-amber-500" };
 const SKALA_COLORS = { kecil: "bg-slate-600", sedang: "bg-blue-500", besar: "bg-amber-500" };
+
+const REFRESH_DELAY_MS = 500;
+
 
 function percentOf(part, total) {
   return total === 0 ? 0 : Math.round((part / total) * 100);
@@ -29,15 +33,17 @@ export function DashboardPage() {
     summary,
     error: summaryError,
     load: loadSummary,
+    reload: reloadSummary,
   } = useDashboardSummary();
   const {
     activity,
     loading: activityLoading,
     error: activityError,
     load: loadActivity,
+    reload: reloadActivity,
   } = useDashboardActivity();
 
-  // ringkasan dimuat sekali; aktivitas dimuat ulang hanya saat rentang berubah
+  // ringkasan dimuat sekali
   useEffect(() => {
     loadSummary();
   }, [loadSummary]);
@@ -45,6 +51,26 @@ export function DashboardPage() {
   useEffect(() => {
     loadActivity(appliedRange);
   }, [loadActivity, appliedRange]);
+
+  useEffect(() => {
+    socket.connect();
+    let timer;
+
+    const handleChanged = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        reloadSummary();
+        reloadActivity();
+      }, REFRESH_DELAY_MS);
+    };
+
+    socket.on("aplikasi:changed", handleChanged);
+    return () => {
+      clearTimeout(timer);
+      socket.off("aplikasi:changed", handleChanged);
+      socket.disconnect();
+    };
+  }, [reloadSummary, reloadActivity]);
 
   const error = validateRange(range.from, range.to);
 
@@ -72,17 +98,12 @@ export function DashboardPage() {
       <header className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Ringkasan data aplikasi Group 2</p>
+          <p className="text-sm text-slate-500 mt-0.5">Ringkasan data aplikasi</p>
         </div>
         <DateRangeFilter range={range} error={error} onChange={handleRangeChange} onReset={handleReset} />
       </header>
 
       <section className="space-y-4">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">Kondisi Saat Ini</h2>
-          <span className="text-xs text-slate-500">Per hari ini, tidak terpengaruh filter tanggal</span>
-        </div>
-
         {summary ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
