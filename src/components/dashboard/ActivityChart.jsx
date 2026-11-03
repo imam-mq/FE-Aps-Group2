@@ -15,18 +15,18 @@ const TICK_STYLE = { color: "#94a3b8", font: { size: 11 } };
 
 export function ActivityChart({ series, rangeLabel }) {
   const canvasRef = useRef(null);
-  const chartRef = useRef(null);
   const total = series.reduce((sum, day) => sum + day.create + day.update + day.delete, 0);
 
-  // buat grafik satu kali, hancurkan saat komponen dilepas
+  // Grafik dibuat dengan data langsung terisi, jadi batang tumbuh dari dasar.
+  // Setiap data berubah, grafik lama dihancurkan lalu dibuat ulang.
   useEffect(() => {
     const chart = new Chart(canvasRef.current, {
       type: "bar",
       data: {
-        labels: [],
+        labels: series.map((day) => day.label),
         datasets: SERIES.map((item) => ({
           label: item.label,
-          data: [],
+          data: series.map((day) => day[item.key]),
           backgroundColor: item.color,
           borderRadius: 3,
           maxBarThickness: 18,
@@ -56,23 +56,8 @@ export function ActivityChart({ series, rangeLabel }) {
         },
       },
     });
-    chartRef.current = chart;
 
-    return () => {
-      chart.destroy();
-      chartRef.current = null;
-    };
-  }, []);
-
-  // perbarui isi grafik setiap data berubah
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-    chart.data.labels = series.map((day) => day.label);
-    SERIES.forEach((item, index) => {
-      chart.data.datasets[index].data = series.map((day) => day[item.key]);
-    });
-    chart.update();
+    return () => chart.destroy();
   }, [series]);
 
   return (
