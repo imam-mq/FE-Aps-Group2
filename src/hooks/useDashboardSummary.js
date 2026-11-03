@@ -7,17 +7,24 @@ export function useDashboardSummary() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const load = useCallback(async () => {
-        setLoading(true);
-        setError("");
+    // socket muat data dashboard
+    const fetchSummary = useCallback(async (silent) => {
+        if (!silent) {
+            setLoading(true);
+            setError("");
+        }
         try {
             setSummary(await dashboardApi.getSummary());
+            setError("");
         } catch (err) {
-            setError(err.message);
+            if (!silent) setError(err.message);
         } finally {
             setLoading(false);
         }
-    },[]);
+    }, []);
 
-    return { summary, loading, error, load };
+    const load  = useCallback(() => fetchSummary(false), [fetchSummary]);
+    const reload  = useCallback(() => fetchSummary(true), [fetchSummary]);
+
+    return { summary, loading, error, load, reload };
 }

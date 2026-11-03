@@ -8,22 +8,35 @@ export function useDashboardActivity() {
 
     // request data yuang lama tidak timpa yang baru
     const requestIdRef = useRef(0);
+    // rentang tanggal socket
+    const rangeRef = useRef(null);
 
-    const load = useCallback(async (range) => {
+    const fetchActivity = useCallback(async (range, silent) => {
         const requestId = ++requestIdRef.current;
+        rangeRef.current = range;
 
-        setLoading(true);
-        setError("");
+        if (!silent) {
+            setLoading(true);
+            setError("");
+        }
         try {
             const result = await dashboardApi.getActivity(range);
             if (requestId !== requestIdRef.current) return;
             setActivity(result);
+            setError("");
         } catch (err) {
-            if (requestId === requestIdRef.current) setError(err.message);
+            if (requestId === requestIdRef.current && !silent) setError(err.message);
         } finally {
             if (requestId === requestIdRef.current) setLoading(false);
         }
     }, []);
 
-    return { activity, loading, error, load };
+    const load = useCallback((range) => fetchActivity(range, false), [fetchActivity]);
+
+    const reload = useCallback(async () => {
+        if (rangeRef.current) await fetchActivity(rangeRef.current, true);
+    }, [fetchActivity]);
+
+
+    return { activity, loading, error, load, reload };
 }
