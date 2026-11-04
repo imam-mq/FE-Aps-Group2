@@ -12,12 +12,12 @@ function TagBadge({ value, tones }) {
   return <Badge tone={tone}>{value}</Badge>;
 }
 
-const TH = "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap";
-const TD = "px-4 py-3 whitespace-nowrap text-slate-700";
+const TH = "px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap";
+const TD = "px-3 py-3 whitespace-nowrap text-slate-700";
 const ARROW_BUTTON =
   "p-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors disabled:text-slate-300 disabled:cursor-not-allowed disabled:hover:bg-white";
 
-// nomor halaman: 1 2 3 4 5 … 20, dengan "…" untuk halaman yang dilewati
+// nomor halaman
 function getPageItems(current, total) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
@@ -45,12 +45,12 @@ export function AplikasiTable({
               <th className={TH}>Koneksi</th>
               <th className={TH}>Skala</th>
               <th className={TH}>Status</th>
-              <th className={`${TH} sticky right-0 bg-slate-50`}>Aksi</th>
+              <th className={TH}>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => (
-              <tr key={item.id} className="group border-b border-slate-100 last:border-0 hover:bg-slate-50">
+              <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                 <td className={`${TD} font-medium text-slate-900`}>{item.namaAplikasi}</td>
                 <td className={TD}>
                   {item.urlLink ? (
@@ -76,7 +76,7 @@ export function AplikasiTable({
                     {item.isActive ? "Aktif" : "Nonaktif"}
                   </span>
                 </td>
-                <td className={`${TD} sticky right-0 bg-white group-hover:bg-slate-50`}>
+                <td className={TD}>
                   <div className="flex gap-1.5">
                     <Button variant="warning" size="sm" onClick={() => onEdit(item.id)}>Edit</Button>
                     <Button variant="danger" size="sm" onClick={() => onDelete(item)}>Hapus</Button>
