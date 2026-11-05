@@ -1,5 +1,5 @@
 import { useState } from "react";
-import loginIllustration from "../assets/login-illustration.gif";
+import { AuthHero } from "./auth/AuthHero";
 import { loginSchema } from "../validators/auth.schema";
 import { firstZodMessage } from "../utils/zodError";
 
@@ -31,35 +31,10 @@ export function LoginForm({ onLogin, onSwitchToRegister, onSwitchToForgotPasswor
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row">
       {/* Panel kiri - branding */}
-      <section className="relative hidden lg:flex lg:w-1/2 bg-slate-950 text-white flex-col justify-between p-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-slate-950 to-slate-900 pointer-events-none" />
-        <div className="absolute -top-40 -left-40 w-[28rem] h-[28rem] bg-indigo-600/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] bg-indigo-500/25 rounded-full blur-3xl pointer-events-none" />
-
-        <header className="relative z-10 flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-            <span className="text-white font-bold text-lg">A</span>
-          </div>
-          <div>
-            <span className="font-bold text-lg tracking-tight text-white block">APS Group 2</span>
-            <span className="text-xs font-medium text-slate-400 tracking-wide uppercase">Penyimpanan Data Aplikasi</span>
-          </div>
-        </header>
-
-        <div className="relative z-10 my-auto py-10 flex flex-col items-center text-center">
-          <img
-            src={loginIllustration}
-            alt="Ilustrasi login"
-            className="w-full max-w-md drop-shadow-2xl mb-10"
-          />
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight max-w-md">
-            Kelola Data Aplikasi.
-          </h1>
-          {/* <p className="text-slate-300 text-base leading-relaxed max-w-md">
-            Setiap akun yang masuk sudah terverifikasi lewat login, jadi data aplikasi tim kamu tetap tersimpan rapi dan tidak sembarang orang bisa mengubahnya.
-          </p> */}
-        </div>
-      </section>
+      <AuthHero
+        title="Kelola Data Aplikasi."
+        description="Simpan dan pantau data aplikasi tim kamu di satu tempat, rapi dan terlindungi."
+      />
 
       {/* Panel kanan - form login */}
       <section className="flex-1 flex items-center justify-center bg-white p-6 sm:p-10 lg:p-16">
